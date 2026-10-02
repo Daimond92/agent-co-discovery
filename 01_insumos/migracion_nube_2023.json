@@ -1,0 +1,9 @@
+{
+    "titulo_proyecto": "Migración de Servidores Core a AWS",
+    "descripcion": "Proyecto de modernización y migración de infraestructura a la nube.",
+    "resumen_ejecutivo": "Se migraron 50 servidores on-premise a AWS utilizando una arquitectura híbrida.",
+    "metodologia": "Scrum con Sprints de 2 semanas",
+    "arquitectura": "Microservicios en EKS, Base de datos en RDS PostgreSQL",
+    "presupuesto": "$150,000 USD",
+    "lecciones_aprendidas": "El tiempo de pruebas de latencia fue mayor al estimado."
+}
