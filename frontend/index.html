@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bluetab | Inteligencia de Proyectos</title>
+    
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <style>
+        /* Paleta de colores Bluetab */
+        :root {
+            --bluetab-navy: #0B1D3A;
+            --bluetab-orange: #E6550D;
+            --bluetab-light: #f4f7f9;
+            --bluetab-gradient: linear-gradient(90deg, #E6550D 0%, #6b21a8 50%, #0284c7 100%);
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: var(--bluetab-light); color: #333; display: flex; height: 100vh; overflow: hidden;}
+        
+        /* Barra lateral */
+        .sidebar { 
+            width: 320px; 
+            background-color: var(--bluetab-navy); 
+            background-image: url('img/Fondo.png'); 
+            background-size: cover;
+            background-position: center;
+            color: white; 
+            display: flex; 
+            flex-direction: column; 
+            box-shadow: 4px 0 15px rgba(0,0,0,0.08); 
+            z-index: 10;
+            position: relative;
+        }
+
+        /* Velo oscuro */
+        .sidebar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(11, 29, 58, 0.45); 
+            z-index: 0;
+        }
+
+        /* Cabecera blanca exclusiva para el logo */
+        .brand-container { 
+            background-color: white;
+            padding: 30px 20px; 
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            border-bottom: 3px solid var(--bluetab-orange);
+        }
+        
+        .logo-img {
+            max-width: 230px; 
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
+
+        /* Contenedor de controles */
+        .sidebar-controls {
+            padding: 30px;
+            position: relative;
+            z-index: 1;
+            flex: 1;
+        }
+
+        .role-selector { width: 100%; padding: 14px; border-radius: 8px; background: rgba(255,255,255,0.08); color: white; border: 1px solid rgba(255,255,255,0.15); font-weight: bold; font-size: 0.95rem; margin-bottom: 25px; cursor: pointer; transition: 0.3s; outline: none;}
+        .role-selector:hover { background: rgba(255,255,255,0.15); border-color: var(--bluetab-orange);}
+        .role-selector option { background: var(--bluetab-navy); color: white; }
+        
+        .rbac-panel {
+            background: rgba(0,0,0,0.5); 
+            padding: 20px; 
+            border-radius: 10px; 
+            border: 1px solid rgba(255,255,255,0.1);
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
+        }
+
+        .rule-item { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+
+        /* Contenedor Principal */
+        .main-chat { flex: 1; display: flex; flex-direction: column; background-color: #ffffff; position: relative;}
+        .header-gradient-bar { height: 5px; width: 100%; background: var(--bluetab-gradient); }
+        
+        .chat-header { background-color: #fff; padding: 20px 30px; border-bottom: 1px solid #edf2f7; display: flex; align-items: center; justify-content: space-between; }
+        .chat-header h1 { 
+        margin: 0; 
+        font-size: 1.8rem; /* Texto mucho más grande */
+        font-weight: 900; 
+        display: flex; 
+        align-items: center; 
+        gap: 15px;
+        /* Efecto de texto con el gradiente corporativo para dar calidez */
+        background: var(--bluetab-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        }
+    
+        .chat-header h1 i {
+        font-size: 2.4rem; /* Icono destacado y más grande */
+        /* Forzamos el color naranja sólido al icono para que resalte */
+        -webkit-text-fill-color: var(--bluetab-orange);
+        }
+        .status-badge { background-color: #e6ffed; color: #137333; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; border: 1px solid #b7ebc6; display: flex; align-items: center; gap: 5px;}
+        
+        /* Área de Chat */
+        .chat-history { flex: 1; padding: 40px; overflow-y: auto; background-color: #f8fafc; display: flex; flex-direction: column; }
+        .message { margin-bottom: 25px; max-width: 75%; line-height: 1.6; animation: fadeIn 0.3s ease-in-out; font-size: 0.95rem;}
+        
+        .message.user { align-self: flex-end; background-color: var(--bluetab-navy); color: white; padding: 18px 25px; border-radius: 18px 18px 0 18px; box-shadow: 0 4px 10px rgba(11, 29, 58, 0.15); }
+        .message.bot { align-self: flex-start; background-color: #ffffff; color: #333; padding: 18px 25px; border-radius: 18px 18px 18px 0; border: 1px solid #e2e8f0; box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
+        .message.bot.denied { border-left: 5px solid #e53e3e; }
+        
+        .bot-name { font-size: 0.85rem; font-weight: 800; color: var(--bluetab-orange); margin-bottom: 10px; display: flex; align-items: center; gap: 5px; text-transform: uppercase; letter-spacing: 0.5px;}
+        .source-badge { display: inline-flex; align-items: center; gap: 6px; background-color: #f1f5f9; color: var(--bluetab-navy); font-size: 0.75rem; padding: 6px 12px; border-radius: 6px; margin-top: 15px; border: 1px solid #cbd5e1; font-weight: 600;}
+        
+        /* Input y Botón */
+        .chat-input { padding: 25px 40px; background-color: #fff; border-top: 1px solid #edf2f7; display: flex; gap: 15px; }
+        input[type="text"] { flex: 1; padding: 16px 20px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 1.05rem; outline: none; transition: 0.3s; background-color: #f8fafc;}
+        input[type="text"]:focus { border-color: var(--bluetab-orange); background-color: #fff; box-shadow: 0 0 0 3px rgba(230, 85, 13, 0.1);}
+        button { display: flex; align-items: center; gap: 8px; background-color: var(--bluetab-orange); color: white; border: none; padding: 0 35px; border-radius: 10px; font-weight: bold; font-size: 1.05rem; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(230, 85, 13, 0.2);}
+        button:hover { background-color: #cc4a0b; transform: translateY(-2px); box-shadow: 0 6px 12px rgba(230, 85, 13, 0.3);}
+        
+        /* Nuevo estilo interactivo para el indicador de carga */
+        .typing { color: var(--bluetab-orange); font-style: italic; font-weight: bold; font-size: 0.95rem; align-self: flex-start; margin-bottom: 20px; display: none; padding: 10px 25px; display: flex; align-items: center; gap: 8px;}
+        .typing i { animation: spin 2s linear infinite; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <!-- Cabecera blanca con Logo -->
+        <div class="brand-container">
+            <img src="img/Logo.png" alt="Bluetab an IBM Company" class="logo-img">
+        </div>
+
+        <div class="sidebar-controls">
+            <p style="font-size: 0.8rem; color: #cbd5e1; margin-bottom: 8px; text-transform: uppercase; font-weight: bold; letter-spacing: 0.5px;">Perfil de Acceso (RBAC):</p>
+            <select id="roleSelect" class="role-selector" onchange="updateRulesAndClearChat()">
+                <option value="iniciador">Iniciador de Proyecto</option>
+                <option value="planificador">Planificador (PMO)</option>
+                <option value="tecnico">Líder Técnico</option>
+            </select>
+
+            <div class="rbac-panel">
+                <p style="margin: 0 0 12px 0; font-size: 0.8rem; color: var(--bluetab-orange); font-weight: bold; text-transform: uppercase; display: flex; align-items: center; gap: 6px;">
+                    <i class="ph ph-shield-check" style="font-size: 1.2rem;"></i> Gobierno de Datos
+                </p>
+                <div id="rulesDisplay" style="font-size: 0.85rem; color: #e2e8f0; line-height: 1.6;">
+                    <!-- Se llena con JS -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-chat">
+        <div class="header-gradient-bar"></div>
+        <div class="chat-header">
+            <!-- Título actualizado -->
+            <h1><i class="ph ph-graph"></i> Project Intelligence Hub</h1>
+            <span class="status-badge"><i class="ph ph-check-circle" style="font-size: 1rem;"></i> Sistema Activo (PoC)</span>
+        </div>
+
+        <div class="chat-history" id="chatHistory">
+            <div class="message bot" id="welcomeMessage">
+                <!-- Nombre de bot actualizado -->
+                <span class="bot-name"><i class="ph ph-sparkle" style="font-size: 1.2rem;"></i> Bluetab AI</span>
+                ¡Hola! He validado tu nivel de acceso corporativo. Estoy listo para ayudarte a extraer valor de nuestros proyectos históricos. ¿Qué activo de conocimiento deseas consultar hoy?
+            </div>
+            <!-- Indicador de carga actualizado y más visual -->
+            <div id="typingIndicator" class="typing" style="display: none;">
+                <i class="ph ph-spinner-gap"></i> Bluetab AI está escaneando los repositorios...
+            </div>
+        </div>
+
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Ej: ¿Qué metodología se usó en..." onkeypress="handleEnter(event)">
+            <button onclick="sendMessage()">Enviar <i class="ph ph-paper-plane-right"></i></button>
+        </div>
+    </div>
+
+    <script>
+        function updateRulesAndClearChat() {
+            const role = document.getElementById('roleSelect').value;
+            const rulesDiv = document.getElementById('rulesDisplay');
+            const chatHistory = document.getElementById('chatHistory');
+            const typingIndicator = document.getElementById('typingIndicator');
+            
+            // Iconos predefinidos para permisos
+            const iconCheck = '<i class="ph ph-check-circle" style="color: #48bb78; font-size: 1.1rem;"></i>';
+            const iconCross = '<i class="ph ph-x-circle" style="color: #fc8181; font-size: 1.1rem;"></i>';
+
+            if(role === 'iniciador') {
+                rulesDiv.innerHTML = `
+                    <div class="rule-item">${iconCheck} Viabilidad y Negocio</div>
+                    <div class="rule-item">${iconCheck} Alcance y KPIs</div>
+                    <br>
+                    <div class="rule-item" style="color:#fc8181">${iconCross} Presupuesto detallado</div>
+                    <div class="rule-item" style="color:#fc8181">${iconCross} Arquitectura técnica</div>
+                `;
+            } else if(role === 'planificador') {
+                rulesDiv.innerHTML = `
+                    <div class="rule-item">${iconCheck} Cronogramas y Fases</div>
+                    <div class="rule-item">${iconCheck} Presupuestos y Recursos</div>
+                    <br>
+                    <div class="rule-item" style="color:#fc8181">${iconCross} Código fuente y Repositorios</div>
+                `;
+            } else {
+                rulesDiv.innerHTML = `
+                    <div class="rule-item">${iconCheck} Arquitectura y Diagramas</div>
+                    <div class="rule-item">${iconCheck} Requerimientos Técnicos</div>
+                    <br>
+                    <div class="rule-item" style="color:#fc8181">${iconCross} Viabilidad financiera</div>
+                    <div class="rule-item" style="color:#fc8181">${iconCross} Presupuestos</div>
+                `;
+            }
+
+            const messages = chatHistory.querySelectorAll('.message:not(#welcomeMessage)');
+            messages.forEach(msg => msg.remove());
+            
+            chatHistory.appendChild(typingIndicator);
+            typingIndicator.style.display = 'none';
+        }
+
+        updateRulesAndClearChat();
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') sendMessage();
+        }
+
+        function sendMessage() {
+            const inputField = document.getElementById('userInput');
+            const text = inputField.value.trim();
+            if (!text) return;
+
+            // 1. Mostrar mensaje del usuario
+            appendMessage(text, 'user');
+            inputField.value = '';
+
+            const typing = document.getElementById('typingIndicator');
+            const chatHistory = document.getElementById('chatHistory');
+            const role = document.getElementById('roleSelect').value;
+            
+            chatHistory.appendChild(typing);
+            typing.style.display = 'flex'; 
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+
+            // FASE 1: Intervención del Orquestador y Validador (Tu diagrama de flujo)
+            typing.innerHTML = '<i class="ph ph-spinner-gap"></i> El Orquestador está enrutando y el Validador comprobando RBAC...';
+
+            // FASE 2: Intervención del Agente Especializado (Dinámico según rol)
+            setTimeout(() => {
+                let mensajeAgente = "";
+                
+                if (role === 'iniciador') {
+                    mensajeAgente = "Agente de Descubrimiento analizando viabilidad estratégica...";
+                } else if (role === 'planificador') {
+                    mensajeAgente = "Agente de Extracción consultando cronogramas y finanzas...";
+                } else {
+                    mensajeAgente = "Agente de Extracción escaneando repositorios y arquitectura...";
+                }
+                
+                typing.innerHTML = `<i class="ph ph-spinner-gap"></i> ${mensajeAgente}`;
+                
+                // FASE 3: Respuesta final
+                setTimeout(() => {
+                    typing.style.display = 'none';
+                    generateBotResponse(text);
+                }, 1800); // Tiempo extra para que se alcance a leer el segundo mensaje
+                
+            }, 1200); // Cambia el texto a los 1.2 segundos
+        }
+
+        function appendMessage(text, sender, isDenied = false) {
+            const chatHistory = document.getElementById('chatHistory');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${sender}`;
+            if (isDenied) msgDiv.classList.add('denied');
+
+            if (sender === 'bot') {
+                let iconBot = isDenied ? '<i class="ph ph-warning-circle" style="font-size: 1.2rem; color: #e53e3e;"></i>' : '<i class="ph ph-sparkle" style="font-size: 1.2rem;"></i>';
+                msgDiv.innerHTML = `<span class="bot-name">${iconBot} Bluetab AI</span>${text}`;
+            } else {
+                msgDiv.textContent = text;
+            }
+
+            chatHistory.insertBefore(msgDiv, document.getElementById('typingIndicator'));
+            chatHistory.scrollTop = chatHistory.scrollHeight;
+        }
+
+        function generateBotResponse(text) {
+            const textLower = text.toLowerCase();
+            const role = document.getElementById('roleSelect').value;
+            let response = "";
+            let isDenied = false;
+
+            if (textLower.includes("metodología") || textLower.includes("metodologia")) {
+                response = "<strong>Dato extraído:</strong> Se utilizó la metodología <strong>Scrum</strong>, estructurada en sprints de <strong>2 semanas</strong>.<br><div class='source-badge'><i class='ph ph-file-code' style='font-size: 1rem;'></i> Fuente: migracion_nube_2023.json</div>";
+            
+            } else if (textLower.includes("presupuesto")) {
+                if (role === 'tecnico' || role === 'iniciador') {
+                    response = "<strong style='color:#e53e3e'>Acceso Denegado (RBAC):</strong> Tu rol actual validado no tiene los permisos requeridos para visualizar datos financieros o presupuestales de los proyectos históricos según las políticas de Gobierno de Datos de Bluetab.";
+                    isDenied = true;
+                } else {
+                    response = "<strong>Dato extraído:</strong> El presupuesto ejecutado para este proyecto fue de <strong>$150,000 USD</strong>.<br><div class='source-badge'><i class='ph ph-file-code' style='font-size: 1rem;'></i> Fuente: migracion_nube_2023.json</div>";
+                }
+
+            } else if (textLower.includes("caso de negocio") || textLower.includes("nuevo proyecto") || textLower.includes("ideación")) {
+                if (role === 'iniciador') {
+                    response = "<strong>Antecedente validado:</strong> Migración de Servidores Core a AWS (2023).<br><br><strong>Propuesta estructurada para tu caso de negocio:</strong><ul style='margin-top:8px; padding-left:20px'><li><strong>Viabilidad:</strong> Existe un antecedente organizacional exitoso.</li><li><strong>Objetivos:</strong> Continuidad operativa y menor dependencia local.</li><li><strong>Lección aprendida:</strong> Ampliar pruebas de latencia antes del despliegue masivo.</li></ul><div class='source-badge'><i class='ph ph-brain' style='font-size: 1rem;'></i> Agente de Descubrimiento (Insumo: migracion_nube_2023.json)</div>";
+                } else {
+                    response = "He enrutado tu petición al <strong>Agente de Descubrimiento</strong>. Para estructurar casos de negocio estratégicos, te sugiero ajustar tu rol a 'Iniciador de Proyecto' en el panel de Gobierno de Datos.";
+                }
+            } else {
+                response = "Para esta prueba de concepto (PoC), te sugiero consultarme sobre la <strong>metodología</strong> utilizada, el <strong>presupuesto</strong> de la migración a AWS, o solicitar asistencia para estructurar un <strong>caso de negocio</strong>.";
+            }
+
+            appendMessage(response, 'bot', isDenied);
+        }
+    </script>
+</body>
+</html>

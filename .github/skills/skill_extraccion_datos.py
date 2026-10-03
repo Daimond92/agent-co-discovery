@@ -1,7 +1,7 @@
 import os
 import json
 
-def extraer_dato_exacto(nombre_archivo, campo_solicitado, directorio="workspace_mallas/01_insumos"):
+def extraer_dato_exacto(nombre_archivo, campo_solicitado, directorio="workspace/01_insumos"):
     """
     Abre un documento específico y extrae un campo o nodo exacto.
     Ideal para responder preguntas puntuales sobre proyectos pasados.

@@ -1,7 +1,7 @@
 import os
 import json
 
-def buscar_historicos(tematica, directorio="workspace_mallas/01_insumos"):
+def buscar_historicos(tematica, directorio="workspace/01_insumos"):
     """
     Escanea el directorio de insumos buscando proyectos históricos relacionados con una temática.
     Simula una búsqueda semántica (RAG) basándose en palabras clave.
